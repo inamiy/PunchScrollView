@@ -37,9 +37,6 @@ NSString *const PunchScrollViewUserInfoTotalPagesNumberKey      = @"PunchScrollV
     BOOL _needsReload;
     BOOL _isScrollingForwardsOrBack;
     
-	id <PunchScrollViewDataSource> _dataSource;
-	id <PunchScrollViewDelegate> _delegate;
-    
 	NSMutableSet                    *_recycledPages;
     NSMutableSet                    *_visiblePages;
     NSMutableArray                  *_pageController;
@@ -118,7 +115,6 @@ NSString *const PunchScrollViewUserInfoTotalPagesNumberKey      = @"PunchScrollV
     
     UITapGestureRecognizer *tapGesutre = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapOnPage:)];
     [self addGestureRecognizer:tapGesutre];
-    [tapGesutre release];
     
     [self setNeedsReload];
 }
@@ -132,16 +128,10 @@ NSString *const PunchScrollViewUserInfoTotalPagesNumberKey      = @"PunchScrollV
     self.delegate = nil;
     self.dataSource = nil;
 	
-	[_indexPaths release];
 	_indexPaths = nil;
-	[_recycledPages release];
 	_recycledPages = nil;
-	[_visiblePages release];
 	_visiblePages = nil;
-    [_pageController release];
     _pageController = nil;
-    
-    [super dealloc];
 }
 
 - (void)removePages
@@ -155,7 +145,6 @@ NSString *const PunchScrollViewUserInfoTotalPagesNumberKey      = @"PunchScrollV
     for (UIView *view in pages)
     {
         [view removeFromSuperview];
-        view = nil;
     }
     
     [_visiblePages removeAllObjects];
@@ -183,9 +172,9 @@ NSString *const PunchScrollViewUserInfoTotalPagesNumberKey      = @"PunchScrollV
 
 - (void)setDelegate:(id<PunchScrollViewDelegate>)aDelegate
 {
-    if (aDelegate != self->_delegate)
+    if (aDelegate != self.delegate)
     {
-        self->_delegate = aDelegate;
+        [super setDelegate:aDelegate];
         if (aDelegate != nil)
         {
             [self setNeedsReload];
@@ -195,7 +184,7 @@ NSString *const PunchScrollViewUserInfoTotalPagesNumberKey      = @"PunchScrollV
 
 - (id<PunchScrollViewDelegate>)delegate
 {
-    return self->_delegate;
+    return (id<PunchScrollViewDelegate>)super.delegate;
 }
 
 
@@ -204,7 +193,6 @@ NSString *const PunchScrollViewUserInfoTotalPagesNumberKey      = @"PunchScrollV
     UIView *page = [_recycledPages anyObject];
     if (page)
     {
-        [[page retain] autorelease];
         [_recycledPages removeObject:page];
         [page removeFromSuperview];
     }
@@ -555,8 +543,6 @@ NSString *const PunchScrollViewUserInfoTotalPagesNumberKey      = @"PunchScrollV
             vc.view = nil;
         }
     }
-    [controllerViewsToDelete release];
-    
     
     //
     // add missing pages
